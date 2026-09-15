@@ -246,14 +246,11 @@ backfill affected bookings before re-enabling the report.
 
 ## C4 - ClickHouse bonus
 
-`ORDER BY (id)` clusters MergeTree granules by ID. It cannot prune granules for
-`event_type = 'booking'` or group efficiently by `created_at`, so ClickHouse
-scans increasingly large parts of the table. The shown query also has no date
-predicate; if it calculates all history, even a better time key still reads
-growing data.
+The query becomes slow because the table is sorted only by `id`, while the query filters by `event_type` and groups by `created_at`.
 
-For event-type/time reporting, create and backfill a table whose physical
-layout matches those predicates:
+As the table grows, ClickHouse cannot efficiently skip enough data for this query, so it has to scan more rows.
+
+For this reporting use case, I would create a new table whose sort key matches the query pattern better:
 
 ```sql
 CREATE TABLE events_v2
@@ -267,8 +264,9 @@ PARTITION BY toYYYYMM(created_at)
 ORDER BY (event_type, created_at, id);
 ```
 
-Dashboard queries should include the needed date range so monthly partitions
-and the sort key can prune data:
+This makes queries that filter by `event_type` and time range more efficient.
+
+For example:
 
 ```sql
 SELECT
@@ -281,8 +279,6 @@ GROUP BY day
 ORDER BY day;
 ```
 
-Changing `ORDER BY` trades faster type/time analytics for potentially slower
-ID-only access and requires a new table plus backfill; a MergeTree sort key is
-not rewritten in place. If the all-history daily count is queried frequently,
-I would add a daily materialized aggregate or projection so dashboards merge
-hundreds of daily rows instead of rescanning tens of millions of raw events.
+I would create and backfill a new table instead of trying to change the existing sort key directly.
+
+If this daily report is queried very often, I would also consider storing a pre-aggregated daily result so the dashboard does not need to scan the raw events table every time.
