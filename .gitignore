@@ -1,0 +1,18 @@
+.worktrees/
+docs/superpowers/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.env
+.env.*
+!.env.example
+tmp/
+(TRAVELIO) AI_Developer_Test.pdf
