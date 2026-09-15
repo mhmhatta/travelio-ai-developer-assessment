@@ -16,6 +16,23 @@ def test_request_rejects_blank_message() -> None:
         ClassifyMessageRequest(message="   ")
 
 
+@pytest.mark.parametrize("missing_field", ["dates", "location", "unit_type"])
+def test_classification_requires_every_entity_field(missing_field: str) -> None:
+    entities = {"dates": [], "location": None, "unit_type": None}
+    entities.pop(missing_field)
+
+    with pytest.raises(ValidationError):
+        ClassificationResult.model_validate(
+            {
+                "intent": "booking_inquiry",
+                "entities": entities,
+                "urgency": "low",
+                "confidence": 0.9,
+                "needs_human": False,
+            }
+        )
+
+
 def test_classification_accepts_iso_dates() -> None:
     result = ClassificationResult.model_validate(
         {

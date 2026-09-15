@@ -110,9 +110,9 @@ class ExtractedEntities(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    dates: tuple[ExtractedDate, ...] = ()
-    location: ShortText | None = None
-    unit_type: UnitType | None = None
+    dates: tuple[ExtractedDate, ...]
+    location: ShortText | None
+    unit_type: UnitType | None
 
 
 class ClassificationResult(BaseModel):

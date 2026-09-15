@@ -156,7 +156,11 @@ All objects reject additional properties.
             }
           }
         },
-        "location": {"type": ["string", "null"], "maxLength": 200},
+        "location": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 200
+        },
         "unit_type": {
           "type": ["string", "null"],
           "enum": ["studio", "1br", "2br", "3br", null]
@@ -182,8 +186,8 @@ All objects reject additional properties.
 
 ## Systematic iteration
 
-I would sample privacy-reviewed production traffic, have humans label a
-versioned and stratified eval set, and inspect failures by intent, language,
-urgency, ambiguity, and adversarial slices. I would change one prompt element
-at a time, run the frozen regression set, and canary only candidates that meet
-per-intent quality and safety thresholds.
+I would collect a sample of real production messages, remove or protect
+sensitive data, and have them manually labeled as an evaluation set. I would
+then review failures by intent, language, urgency, and ambiguous or adversarial
+cases. When changing the prompt, I would change one thing at a time and compare
+the new version against the same evaluation set before releasing it.
